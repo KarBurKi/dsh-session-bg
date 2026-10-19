@@ -1,0 +1,4 @@
+# dsh-session-bg：把本插件挂进 profile 的插件树（Host 半 + Client 半）
+- insert:
+    - id: session-bg
+      name: dsh-session-bg

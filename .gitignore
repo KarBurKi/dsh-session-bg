@@ -1,0 +1,6 @@
+config.json
+config.json.bak
+current-session.json
+test/bg-request.log
+test/demo-bg.png
+node_modules/
