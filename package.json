@@ -1,6 +1,6 @@
 {
   "name": "dsh-session-bg",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "按 sessionId 给对话栏配独立背景图：Host 提供配置/图片路由，Client 在会话头部挂载跟踪器，随会话切换换图。",
   "type": "module",

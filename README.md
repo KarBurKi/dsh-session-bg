@@ -8,7 +8,15 @@
   - `GET /api/dsh-session-bg/config` — 返回 `sessionId -> { image, dim, fit, position }` 映射（图片路径转成带 mtime 的 URL，换图自动失效）
   - `GET /api/dsh-session-bg/image?sid=...` — 只发送该会话配置的那张图（ETag / no-cache）
   - 同时在 `session/event` 里把最近活跃会话写进 `current-session.json`，供 `bg.py --session current`
-- **Client 半**（`lib/client.js`）：在 `conversation.session.header.actions` 插槽挂一个渲染为 `null` 的跟踪器，React 会把当前 `sessionId` 作为 prop 传进来；拿到配置后给对话栏根节点打 `data-dsh-sbg-surface` 标记，并通过 `html` 上的 CSS 变量画背景。未配置的会话恢复原样。
+- **Client 半**（`lib/client.js`）：不再依赖插槽 props（新版 DSH 的 `conversation.session.header.actions` 只传空对象），改成每秒读一次 `ctx.uiWorkspace.mainReference.sessionId` 拿当前会话 id，切会话立即换图，15 秒刷新一次配置；给对话栏根节点打 `data-dsh-sbg-surface` 标记，背景规则写成 `html[data-dsh-session-bg] [data-dsh-sbg-surface]` 并加 `!important`，压过宿主自己同权重的底板背景。未配置的会话恢复原样。
+- **调试**：`GET /api/dsh-session-bg/debug?msg=...` 往 `debug.log` 追加一行；客户端首次挂载会自报挂载点、尺寸、计算出来的 `background-image` 和屏幕中心点上的元素，用来区分「没挂上」和「挂上了但被盖住」。
+
+## 0.1.2 变更
+
+- 会话 id 改从 `ctx.uiWorkspace.mainReference.sessionId` 读：旧版靠 `conversation.session.header.actions` 插槽的 props，新版宿主渲染该插槽时只传 `{}`，拿不到 id，于是「有配置、有请求、就是不上图」。
+- 背景规则提到 `html[data-dsh-session-bg] [data-dsh-sbg-surface]` 并加 `!important`，避免被宿主同类选择器（`.root[data-phase]`）压掉。
+- 挂载点多级回退：`[data-conversation-scroll]` 的 `[data-phase]` 祖先 → 最近的 `data-phase` 祖先 → `[class*=centerCol]` → `body`。
+- 新增图片预取（先缓存再挂背景）与 `/api/dsh-session-bg/debug` 诊断路由。
 
 ## 用法
 
